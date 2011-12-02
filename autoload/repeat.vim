@@ -29,6 +29,12 @@
 "
 " Make sure to call the repeat#set function _after_ making changes to the
 " file.
+" If your repeatable mapping does not modify the current buffer (i.e.
+" b:changedtick does not increase), and if you also have a related mapping that
+" repeats naturally on its own and you therefore do not invoke repeat#set() in
+" it, call repeat#invalidate() in that related mapping to re-activate the
+" built-in repetition.  Otherwise, the first mapping will be spuriously
+" repeated.
 
 if exists("g:loaded_repeat") || &cp || v:version < 700
     finish
@@ -37,8 +43,11 @@ let g:loaded_repeat = 1
 
 let g:repeat_tick = -1
 
+function! repeat#invalidate()
+    let g:repeat_tick = -1
+endfunction
+
 function! repeat#set(sequence,...)
-    silent exe "norm! \"=''\<CR>p"
     let g:repeat_sequence = a:sequence
     let g:repeat_count = a:0 ? a:1 : v:count
     let g:repeat_tick = b:changedtick
