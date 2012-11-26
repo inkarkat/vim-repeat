@@ -103,12 +103,12 @@ function! repeat#wrap(command,count)
     endif
 endfunction
 
-nnoremap <silent> .     :<C-U>call repeat#run(v:count)<CR>
-nnoremap <silent> u     :<C-U>call repeat#wrap('u',v:count)<CR>
+nnoremap <silent> .     :<C-U>if ! &l:modifiable && g:repeat_tick != b:changedtick<Bar>execute 'normal! .'<Bar>else<Bar>call repeat#run(v:count)<Bar>endif<CR>
+nnoremap <silent> u     :<C-U>if ! &l:modifiable<Bar>execute "normal! u"<Bar>else<Bar>call repeat#wrap('u',v:count)<Bar>endif<CR>
 if maparg('U','n') ==# ''
-    nnoremap <silent> U     :<C-U>call repeat#wrap('U',v:count)<CR>
+    nnoremap <silent> U     :<C-U>if ! &l:modifiable<Bar>execute 'normal! U'<Bar>else<Bar>call repeat#wrap('U',v:count)<Bar>endif<CR>
 endif
-nnoremap <silent> <C-R> :<C-U>call repeat#wrap("\<Lt>C-R>",v:count)<CR>
+nnoremap <silent> <C-R> :<C-U>if ! &l:modifiable<Bar>execute "normal! \<lt>C-R>"<Bar>else<Bar>call repeat#wrap("\<Lt>C-R>",v:count)<Bar>endif<CR>
 
 augroup repeatPlugin
     autocmd!
