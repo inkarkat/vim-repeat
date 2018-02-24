@@ -96,6 +96,8 @@ function! repeat#run(count)
                 call feedkeys(s, 'i')
                 call feedkeys(r . cnt, 'ni')
             endif
+        elseif ! &l:modifiable
+            return 'normal! .'
         else
             if ((v:version == 703 && has('patch100')) || (v:version == 704 && !has('patch601')))
                 exe 'norm! '.(a:count ? a:count : '') . '.'
@@ -119,9 +121,9 @@ function! repeat#wrap(command,count)
 endfunction
 
 nnoremap <silent> <Plug>(RepeatDot)      :<C-U>exe repeat#run(v:count)<CR>
-nnoremap <silent> <Plug>(RepeatUndo)     :<C-U>call repeat#wrap('u',v:count)<CR>
-nnoremap <silent> <Plug>(RepeatUndoLine) :<C-U>call repeat#wrap('U',v:count)<CR>
-nnoremap <silent> <Plug>(RepeatRedo)     :<C-U>call repeat#wrap("\<Lt>C-R>",v:count)<CR>
+nnoremap <silent> <Plug>(RepeatUndo)     :<C-U>if ! &l:modifiable<Bar>execute "normal! u"<Bar>else<Bar>call repeat#wrap('u',v:count)<Bar>endif<CR>
+nnoremap <silent> <Plug>(RepeatUndoLine) :<C-U>if ! &l:modifiable<Bar>execute 'normal! U'<Bar>else<Bar>call repeat#wrap('U',v:count)<Bar>endif<CR>
+nnoremap <silent> <Plug>(RepeatRedo)     :<C-U>if ! &l:modifiable<Bar>execute "normal! \<Lt>C-R>"<Bar>else<Bar>call repeat#wrap("\<Lt>C-R>",v:count)<Bar>endif<CR>
 
 if !hasmapto('<Plug>(RepeatDot)', 'n')
     nmap . <Plug>(RepeatDot)
