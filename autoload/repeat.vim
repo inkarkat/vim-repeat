@@ -73,6 +73,14 @@ function! repeat#setreg(sequence,register)
     let g:repeat_reg = [a:sequence, a:register]
 endfunction
 
+function! s:normal_with_count(prefix, count, string, isNoRemap)
+    if !a:count || v:version > 703 || (v:version == 703 && has('patch100'))
+        execute 'normal' . (a:isNoRemap ? '!' : '') a:prefix . (a:count ? a:count : '') . a:string
+    else
+        call feedkeys(a:prefix . (a:count ? a:count : '') . a:string, (a:isNoRemap ? 'n' : ''))
+    endif
+endfunction
+
 function! repeat#run(count)
     try
         if g:repeat_tick == b:changedtick
@@ -90,18 +98,9 @@ function! repeat#run(count)
             let c = g:repeat_count
             let s = g:repeat_sequence
             let cnt = c == -1 ? "" : (a:count ? a:count : (c ? c : ''))
-            if ((v:version == 703 && has('patch100')) || (v:version == 704 && !has('patch601')))
-                exe 'norm ' . r . cnt . s
-            else
-                call feedkeys(s, 'i')
-                call feedkeys(r . cnt, 'ni')
-            endif
+            call s:normal_with_count(r, cnt, s, 0)
         else
-            if ((v:version == 703 && has('patch100')) || (v:version == 704 && !has('patch601')))
-                exe 'norm! '.(a:count ? a:count : '') . '.'
-            else
-                call feedkeys((a:count ? a:count : '') . '.', 'ni')
-            endif
+            call s:normal_with_count('', a:count, '.', 1)
         endif
     catch /^Vim(normal):/
         return 'echoerr v:errmsg'
