@@ -75,9 +75,22 @@ endfunction
 
 function! s:normal_with_count(prefix, count, string, isNoRemap)
     if !a:count || v:version > 703 || (v:version == 703 && has('patch100'))
-        execute 'normal' . (a:isNoRemap ? '!' : '') a:prefix . (a:count ? a:count : '') . a:string
+        if a:isNoRemap
+            execute 'normal!' a:prefix . (a:count ? a:count : '') . a:string
+        else
+            " Note: The register (a:prefix) can be submitted separately (without
+            " remapping), but the count has to be in the same :normal argument
+            " as a:string to affect v:count.
+            if !empty(a:prefix)
+                execute 'normal!' . a:prefix
+            endif
+            execute 'normal' (a:count ? a:count : '') . a:string
+        endif
     else
-        call feedkeys(a:prefix . (a:count ? a:count : '') . a:string, (a:isNoRemap ? 'n' : ''))
+        if !empty(a:prefix)
+            call feedkeys(a:prefix . (a:count ? a:count : ''), 'n')
+        endif
+        call feedkeys(a:string, (a:isNoRemap ? 'n' : ''))
     endif
 endfunction
 
